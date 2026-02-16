@@ -1,0 +1,38 @@
+services:
+  app:
+    #Nginx Proxy Manager
+    image: 'jc21/nginx-proxy-manager:latest'
+    restart: unless-stopped
+    networks:
+      - plex_net
+    environment:
+      TZ: "Australia/Brisbane"
+    ports:
+      - '80:80'
+      - '81:81'
+      - '443:443'
+    volumes:
+      - ./data:/data
+      - ./letsencrypt:/etc/letsencrypt
+  plex:
+    #Plex Server
+    image: lscr.io/linuxserver/plex:latest
+    container_name: plex
+    networks:
+      - plex_net
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - VERSION=docker
+    volumes:
+      - /opt/plex/config:/config
+      - /opt/plex/transcode:/transcode
+      - /opt/plex/media/movies:/movies
+      - /opt/plex/media/tv:/tv
+    restart: unless-stopped
+
+networks:
+  plex_net:
+    driver: bridge
+
